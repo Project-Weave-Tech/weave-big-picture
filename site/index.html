@@ -52,6 +52,8 @@ main.wrap{padding:24px 32px 64px;display:flex;flex-direction:column;gap:20px}
 .link{stroke:var(--line);stroke-width:1.2}
 .link.person{stroke:var(--k-person);stroke-opacity:.55;stroke-width:1.8}
 .side{border-left:1px solid var(--line);padding:18px;overflow:auto;max-height:600px}
+.clear{float:right;min-height:32px;padding:0 10px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--muted);font:inherit;font-size:12px;cursor:pointer}
+.clear:hover{color:var(--ink);border-color:var(--muted)}
 .side h2{margin:6px 0 4px;font-size:18px;font-weight:600}
 .side .kind{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.04em;text-transform:uppercase}
 .side .unconf{font-size:12px;color:var(--muted);font-style:italic;margin:4px 0 0}
@@ -145,7 +147,7 @@ function start(d) {
 
   const filters = document.getElementById('filters');
   const paintFilters = () => {
-    filters.innerHTML = KINDS.map((k) => `<button class="chip" type="button" data-k="${k.id}" aria-pressed="${state.kinds.has(k.id)}"><span class="dot" style="background:var(--k-${k.id})"></span>${k.label} ${n(k.id)}</button>`).join('') + `<span class="sep"></span><button class="chip" type="button" data-t="1" aria-pressed="${state.tags}"><span class="dot" style="background:var(--tag);width:8px;height:8px"></span>Shared tags</button><span class="hint">Drag to move · click for details · scroll to zoom</span>`;
+    filters.innerHTML = KINDS.map((k) => `<button class="chip" type="button" data-k="${k.id}" aria-pressed="${state.kinds.has(k.id)}"><span class="dot" style="background:var(--k-${k.id})"></span>${k.label} ${n(k.id)}</button>`).join('') + `<span class="sep"></span><button class="chip" type="button" data-t="1" aria-pressed="${state.tags}"><span class="dot" style="background:var(--tag);width:8px;height:8px"></span>Shared tags</button><span class="hint">Drag to move · click for details · click empty space or Esc to clear · scroll to zoom</span>`;
     filters.querySelectorAll('[data-k]').forEach((b) => (b.onclick = () => { const k = b.dataset.k; state.kinds.has(k) ? state.kinds.delete(k) : state.kinds.add(k); paintFilters(); draw(); }));
     filters.querySelector('[data-t]').onclick = () => { state.tags = !state.tags; paintFilters(); draw(); };
   };
@@ -156,21 +158,25 @@ function start(d) {
     const it = state.focus && byId[state.focus];
     if (state.tagFocus) {
       const list = items.filter((i) => (i.tags || []).includes(state.tagFocus));
-      side.innerHTML = `<span class="kind" style="color:var(--muted)">tag</span><h2>${esc(state.tagFocus)}</h2><p class="empty">${list.length} entries</p><ul>${list.map((i) => `<li><a href="#" data-go="${i.id}">${esc(i.name)}</a></li>`).join('')}</ul>`;
+      side.innerHTML = `${clearBtn}<span class="kind" style="color:var(--muted)">tag</span><h2>${esc(state.tagFocus)}</h2><p class="empty">${list.length} entries</p><ul>${list.map((i) => `<li><a href="#" data-go="${i.id}">${esc(i.name)}</a></li>`).join('')}</ul>`;
     } else if (!it) {
       side.innerHTML = `<h2>The big picture</h2><p class="empty">Click a project or a person for what it is and who it connects to. Click a grey point for everything with that tag.</p>${edges.length ? '' : '<p class="empty">No people yet: add yourself with the projects you work on, and the lines appear.</p>'}`;
     } else {
       const k = kindOf(it); const label = (KINDS.find((x) => x.id === k) || {}).label || k;
       const rel = it.type === 'person' ? (projectsOf[it.id] || []) : (peopleOf[it.id] || []);
       const secs = Object.entries(it.sections || {}).map(([h, t]) => `<h3>${esc(h)}</h3>${md(t)}`).join('');
-      side.innerHTML = `<span class="kind" style="color:var(--k-${k})">${esc(it.type === 'person' ? 'person' : label.replace(/s$/, '').replace(/ie$/, 'y'))}</span><h2>${esc(it.name)}</h2>${it.confirmed === false ? '<p class="unconf">Compiled from public sources; not yet confirmed by the project.</p>' : ''}${md(it.summary)}
+      side.innerHTML = `${clearBtn}<span class="kind" style="color:var(--k-${k})">${esc(it.type === 'person' ? 'person' : label.replace(/s$/, '').replace(/ie$/, 'y'))}</span><h2>${esc(it.name)}</h2>${it.confirmed === false ? '<p class="unconf">Compiled from public sources; not yet confirmed by the project.</p>' : ''}${md(it.summary)}
         <h3>${it.type === 'person' ? 'Works on' : 'People'}</h3>${rel.length ? '<ul>' + rel.map((x) => `<li><a href="#" data-go="${x}">${esc((byId[x] || {}).name || x)}</a></li>`).join('') + '</ul>' : `<p class="empty">${it.type === 'person' ? 'No project listed yet.' : 'Nobody listed yet.'}</p>`}
         ${secs}${(it.links || []).length ? '<h3>Links</h3><ul>' + it.links.map((l) => `<li><a href="${esc(l)}" target="_blank" rel="noopener">${esc(l.replace(/^https?:\/\//, ''))}</a></li>`).join('') + '</ul>' : ''}
         <div class="tags">${(it.tags || []).map((t) => `<button class="tagc" type="button" data-tag="${esc(t)}">${esc(t)}</button>`).join('')}</div>`;
     }
     side.querySelectorAll('[data-go]').forEach((a) => (a.onclick = (e) => { e.preventDefault(); select(a.dataset.go); }));
+    const cb = side.querySelector('[data-clear]'); if (cb) cb.onclick = clear;
     side.querySelectorAll('[data-tag]').forEach((b) => (b.onclick = () => selectTag(b.dataset.tag)));
   };
+  const clearBtn = '<button class="clear" type="button" data-clear="1" aria-label="Clear selection">Clear ×</button>';
+  const clear = () => { if (!state.focus && !state.tagFocus) return; state.focus = null; state.tagFocus = null; paintSide(); highlight(); };
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') clear(); });
   const select = (id) => { state.focus = state.focus === id ? null : id; state.tagFocus = null; paintSide(); highlight(); };
   const selectTag = (t) => { state.tagFocus = state.tagFocus === t ? null : t; state.focus = null; if (!state.tags) { state.tags = true; paintFilters(); draw(); } paintSide(); highlight(); };
 
@@ -188,6 +194,8 @@ function start(d) {
   const zoomG = svg.append('g');
   const zoom = d3.zoom().scaleExtent([0.3, 3]).on('zoom', (e) => zoomG.attr('transform', e.transform));
   svg.call(zoom);
+  // A click on empty space clears the selection
+  svg.on('click', (e) => { if (e.target === svg.node()) clear(); });
   // Once the layout settles, fit everything into view (narrow screens especially)
   const fit = () => { const b = zoomG.node().getBBox(); if (!b.width) return; const w = svg.node().clientWidth, h = svg.node().clientHeight, pad = 24; const k = Math.min(1.4, (w - 2 * pad) / b.width, (h - 2 * pad) / b.height); svg.transition().duration(400).call(zoom.transform, d3.zoomIdentity.translate(w / 2 - k * (b.x + b.width / 2), h / 2 - k * (b.y + b.height / 2)).scale(k)); };
   function draw() {
