@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Weave Big Picture</title>
+<meta name="description" content="Projects and people around Project Weave, and how they connect.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+:root{--bg:#F6F6F3;--surface:#FFFFFF;--ink:#17181A;--muted:#5B6067;--line:#E1E1DA;--soft:#EFEFEA;--accent:#2349BF;--accent-soft:#E7ECFA;
+--k-software:#2349BF;--k-software-b:#E3EBFF;--k-community:#0B6555;--k-community-b:#D9F2EC;--k-idea:#7E4E00;--k-idea-b:#FCEFD2;--k-person:#9C2259;--k-person-b:#FCE3EE;--tag:#8A8F96;color-scheme:light}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#121315;--surface:#1A1C1F;--ink:#ECECE7;--muted:#A6ABB2;--line:#2D3035;--soft:#222428;--accent:#93ADFF;--accent-soft:#1E2742;
+--k-software:#A9C0FF;--k-software-b:#1C2747;--k-community:#7FDCC6;--k-community-b:#11302B;--k-idea:#F4C76F;--k-idea-b:#352914;--k-person:#F7A3C8;--k-person-b:#3A1A2A;--tag:#7C828A;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#121315;--surface:#1A1C1F;--ink:#ECECE7;--muted:#A6ABB2;--line:#2D3035;--soft:#222428;--accent:#93ADFF;--accent-soft:#1E2742;
+--k-software:#A9C0FF;--k-software-b:#1C2747;--k-community:#7FDCC6;--k-community-b:#11302B;--k-idea:#F4C76F;--k-idea-b:#352914;--k-person:#F7A3C8;--k-person-b:#3A1A2A;--tag:#7C828A;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:14px;line-height:1.45}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+.wrap{max-width:1400px;margin:0 auto;padding:0 32px}
+header{background:var(--surface);border-bottom:1px solid var(--line)}
+.hdr{display:flex;flex-wrap:wrap;align-items:center;gap:12px 28px;padding:16px 0}
+.hdr h1{margin:0;font-size:22px;font-weight:600;letter-spacing:-.01em}
+.hdr p{margin:2px 0 0;color:var(--muted)}
+.hdr .grow{flex:1 1 420px;min-width:0}
+.btn{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 14px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap}
+.btn:hover{border-color:var(--muted);text-decoration:none}
+.btn-icon{width:40px;padding:0;justify-content:center}
+main.wrap{padding:24px 32px 64px;display:flex;flex-direction:column;gap:20px}
+.block{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0}
+.stat{padding:14px 18px;border-right:1px solid var(--line);display:flex;align-items:center;gap:12px}
+.stat:last-child{border-right:0}
+.dot{width:12px;height:12px;border-radius:50%;flex:none}
+.stat strong{font-size:22px;font-weight:600;font-variant-numeric:tabular-nums}
+.stat span{color:var(--muted);font-size:12.5px}
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;padding:12px 18px;border-bottom:1px solid var(--line)}
+.chip{display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-size:12.5px;cursor:pointer}
+.chip[aria-pressed="false"]{color:var(--muted);opacity:.6}
+.chip:hover{border-color:var(--muted)}
+.bar .sep{width:1px;height:20px;background:var(--line);margin:0 6px}
+.bar .hint{margin-left:auto;color:var(--muted);font-size:12px}
+.graphwrap{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 340px;min-height:560px}
+#graph{width:100%;height:600px;display:block;cursor:grab}
+#graph:active{cursor:grabbing}
+.node text{font-size:11.5px;fill:var(--ink);pointer-events:none;paint-order:stroke;stroke:var(--surface);stroke-width:3px}
+.node.tag text{fill:var(--muted);font-size:10.5px}
+.node{cursor:pointer}
+.node.dim,.link.dim{opacity:.12}
+.link{stroke:var(--line);stroke-width:1.2}
+.link.person{stroke:var(--k-person);stroke-opacity:.55;stroke-width:1.8}
+.side{border-left:1px solid var(--line);padding:18px;overflow:auto;max-height:600px}
+.side h2{margin:6px 0 4px;font-size:18px;font-weight:600}
+.side .kind{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.04em;text-transform:uppercase}
+.side .unconf{font-size:12px;color:var(--muted);font-style:italic;margin:4px 0 0}
+.side p{margin:8px 0}
+.side h3{margin:14px 0 4px;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:500}
+.side ul{margin:0;padding-left:18px}
+.tags{display:flex;flex-wrap:wrap;gap:4px 6px;margin-top:8px}
+.tagc{font-size:11.5px;padding:1px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);background:none;font-family:inherit;cursor:pointer}
+.tagc:hover{border-color:var(--muted);color:var(--ink)}
+.empty{color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;padding:16px 18px}
+.card{border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;background:var(--surface);text-align:left;font:inherit;color:inherit;cursor:pointer}
+.card:hover{border-color:var(--muted)}
+.card .top{display:flex;align-items:center;gap:8px}
+.card strong{font-size:14px;font-weight:600}
+.card p{margin:0;color:var(--muted);font-size:12.5px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.bhead{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;padding:16px 18px 0}
+.bhead h2{margin:0;font-size:17px;font-weight:600}
+.bhead p{margin:0;color:var(--muted);font-size:13px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;padding:10px 18px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+@media (max-width: 900px){.graphwrap{grid-template-columns:minmax(0,1fr)}.side{border-left:0;border-top:1px solid var(--line);max-height:none}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.stat{border-bottom:1px solid var(--line)}#graph{height:420px}}
+@media (max-width: 640px){.wrap{padding:0 16px}main.wrap{padding:16px 16px 48px}.bar .hint{display:none}}
+</style>
+</head>
+<body>
+<header><div class="wrap"><div class="hdr">
+<div class="grow"><h1>Weave Big Picture</h1><p>Projects and people around Project Weave, and how they connect.</p></div>
+<button class="btn btn-icon" id="theme" type="button" aria-label="Switch theme" title="Switch theme"></button>
+<a class="btn btn-icon" href="https://github.com/Project-Weave-Tech/weave-big-picture" target="_blank" rel="noopener" aria-label="Repository on GitHub" title="Repository on GitHub"><svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg></a>
+<a class="btn" href="https://github.com/Project-Weave-Tech/weave-big-picture/issues/new/choose" target="_blank" rel="noopener">Add a project or a person</a>
+</div></div></header>
+
+<main class="wrap">
+<section class="block stats" id="stats" aria-label="Counts"></section>
+
+<section class="block" aria-labelledby="h-graph">
+<div class="bar" id="filters" role="group" aria-label="Show"></div>
+<div class="graphwrap">
+<svg id="graph" role="img" aria-labelledby="h-graph"><title id="h-graph">Graph of projects, people and shared tags</title></svg>
+<aside class="side" id="side" aria-live="polite"></aside>
+</div>
+<div class="legend" id="legend"></div>
+</section>
+
+<section class="block" aria-labelledby="h-all">
+<div class="bhead"><h2 id="h-all">Everything</h2><p id="allsub"></p></div>
+<div class="grid" id="grid"></div>
+</section>
+</main>
+
+<script>
+// Kinds and their colours; people are a kind of their own
+const KINDS = [
+  { id: 'software', label: 'Software' },
+  { id: 'community', label: 'Communities' },
+  { id: 'idea', label: 'Ideas' },
+  { id: 'person', label: 'People' },
+];
+const kindOf = (it) => (it.type === 'person' ? 'person' : it.kind);
+const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+// Enough Markdown for summaries: paragraphs, links, bold
+const md = (s) => esc(s).split(/\n{2,}/).map((p) => '<p>' + p.replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>').replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').replace(/\n/g, ' ') + '</p>').join('');
+// A short name for the graph: the part before ' / ' or ' (' ; initials from its words
+const shortName = (n) => String(n).split(' / ')[0].split(' (')[0];
+const initials = (n) => shortName(n).split(/[^A-Za-z0-9]+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
+
+// Theme toggle, remembered per viewer
+const root = document.documentElement;
+const themeBtn = document.getElementById('theme');
+const isDark = () => (root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches);
+const paintThemeBtn = () => { themeBtn.innerHTML = isDark() ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>' : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"></path></svg>'; };
+try { const t = localStorage.getItem('weave-theme'); if (t) root.dataset.theme = t; } catch (e) {}
+themeBtn.onclick = () => { root.dataset.theme = isDark() ? 'light' : 'dark'; try { localStorage.setItem('weave-theme', root.dataset.theme); } catch (e) {} paintThemeBtn(); if (window.redraw) window.redraw(); };
+paintThemeBtn();
+
+fetch('./data.json').then((r) => r.json()).then(start).catch((e) => { document.getElementById('side').innerHTML = '<p class="empty">data.json could not be read. ' + esc(e.message) + '</p>'; });
+
+function start(d) {
+  const items = d.items || []; const edges = d.edges || [];
+  const byId = Object.fromEntries(items.map((i) => [i.id, i]));
+  const peopleOf = {}; const projectsOf = {};
+  edges.forEach((e) => { (peopleOf[e.to] = peopleOf[e.to] || []).push(e.from); (projectsOf[e.from] = projectsOf[e.from] || []).push(e.to); });
+  const tagCount = {}; items.forEach((i) => (i.tags || []).forEach((t) => { tagCount[t] = (tagCount[t] || 0) + 1; }));
+  const state = { kinds: new Set(KINDS.map((k) => k.id)), tags: true, focus: null, tagFocus: null };
+
+  // Counts per kind, plus connections
+  const n = (k) => items.filter((i) => kindOf(i) === k).length;
+  document.getElementById('stats').innerHTML = KINDS.map((k) => `<div class="stat"><span class="dot" style="background:var(--k-${k.id})"></span><div><strong>${n(k.id)}</strong><br><span>${k.label}</span></div></div>`).join('') + `<div class="stat"><span class="dot" style="background:var(--line)"></span><div><strong>${edges.length}</strong><br><span>${edges.length === 1 ? 'connection' : 'connections'} person to project</span></div></div>`;
+
+  const filters = document.getElementById('filters');
+  const paintFilters = () => {
+    filters.innerHTML = KINDS.map((k) => `<button class="chip" type="button" data-k="${k.id}" aria-pressed="${state.kinds.has(k.id)}"><span class="dot" style="background:var(--k-${k.id})"></span>${k.label} ${n(k.id)}</button>`).join('') + `<span class="sep"></span><button class="chip" type="button" data-t="1" aria-pressed="${state.tags}"><span class="dot" style="background:var(--tag);width:8px;height:8px"></span>Shared tags</button><span class="hint">Drag to move · click for details · scroll to zoom</span>`;
+    filters.querySelectorAll('[data-k]').forEach((b) => (b.onclick = () => { const k = b.dataset.k; state.kinds.has(k) ? state.kinds.delete(k) : state.kinds.add(k); paintFilters(); draw(); }));
+    filters.querySelector('[data-t]').onclick = () => { state.tags = !state.tags; paintFilters(); draw(); };
+  };
+  document.getElementById('legend').innerHTML = '<span>Lines from people lead to the projects they work on.</span><span>Grey points are tags at least two entries share; they pull related entries together.</span>';
+
+  const side = document.getElementById('side');
+  const paintSide = () => {
+    const it = state.focus && byId[state.focus];
+    if (state.tagFocus) {
+      const list = items.filter((i) => (i.tags || []).includes(state.tagFocus));
+      side.innerHTML = `<span class="kind" style="color:var(--muted)">tag</span><h2>${esc(state.tagFocus)}</h2><p class="empty">${list.length} entries</p><ul>${list.map((i) => `<li><a href="#" data-go="${i.id}">${esc(i.name)}</a></li>`).join('')}</ul>`;
+    } else if (!it) {
+      side.innerHTML = `<h2>The big picture</h2><p class="empty">Click a project or a person for what it is and who it connects to. Click a grey point for everything with that tag.</p>${edges.length ? '' : '<p class="empty">No people yet: add yourself with the projects you work on, and the lines appear.</p>'}`;
+    } else {
+      const k = kindOf(it); const label = (KINDS.find((x) => x.id === k) || {}).label || k;
+      const rel = it.type === 'person' ? (projectsOf[it.id] || []) : (peopleOf[it.id] || []);
+      const secs = Object.entries(it.sections || {}).map(([h, t]) => `<h3>${esc(h)}</h3>${md(t)}`).join('');
+      side.innerHTML = `<span class="kind" style="color:var(--k-${k})">${esc(it.type === 'person' ? 'person' : label.replace(/s$/, '').replace(/ie$/, 'y'))}</span><h2>${esc(it.name)}</h2>${it.confirmed === false ? '<p class="unconf">Compiled from public sources; not yet confirmed by the project.</p>' : ''}${md(it.summary)}
+        <h3>${it.type === 'person' ? 'Works on' : 'People'}</h3>${rel.length ? '<ul>' + rel.map((x) => `<li><a href="#" data-go="${x}">${esc((byId[x] || {}).name || x)}</a></li>`).join('') + '</ul>' : `<p class="empty">${it.type === 'person' ? 'No project listed yet.' : 'Nobody listed yet.'}</p>`}
+        ${secs}${(it.links || []).length ? '<h3>Links</h3><ul>' + it.links.map((l) => `<li><a href="${esc(l)}" target="_blank" rel="noopener">${esc(l.replace(/^https?:\/\//, ''))}</a></li>`).join('') + '</ul>' : ''}
+        <div class="tags">${(it.tags || []).map((t) => `<button class="tagc" type="button" data-tag="${esc(t)}">${esc(t)}</button>`).join('')}</div>`;
+    }
+    side.querySelectorAll('[data-go]').forEach((a) => (a.onclick = (e) => { e.preventDefault(); select(a.dataset.go); }));
+    side.querySelectorAll('[data-tag]').forEach((b) => (b.onclick = () => selectTag(b.dataset.tag)));
+  };
+  const select = (id) => { state.focus = state.focus === id ? null : id; state.tagFocus = null; paintSide(); highlight(); };
+  const selectTag = (t) => { state.tagFocus = state.tagFocus === t ? null : t; state.focus = null; if (!state.tags) { state.tags = true; paintFilters(); draw(); } paintSide(); highlight(); };
+
+  // The list below the graph, same filter as the graph
+  const grid = document.getElementById('grid');
+  const paintGrid = () => {
+    const list = items.filter((i) => state.kinds.has(kindOf(i)));
+    document.getElementById('allsub').textContent = list.length + ' of ' + items.length + ' entries, in the filter above.';
+    grid.innerHTML = list.map((i) => { const k = kindOf(i); return `<button class="card" type="button" data-go="${i.id}"><span class="top">${i.type === 'person' ? `<span class="dot" style="background:var(--k-person)"></span>` : `<span class="dot" style="background:var(--k-${k})"></span>`}<strong>${esc(i.name)}</strong></span><p>${esc(String(i.summary || '').replace(/\[([^\]]+)\]\([^)]+\)/g, '$1'))}</p><span class="tags">${(i.tags || []).slice(0, 5).map((t) => `<span class="tagc">${esc(t)}</span>`).join('')}</span></button>`; }).join('') || '<p class="empty">Nothing in this filter.</p>';
+    grid.querySelectorAll('[data-go]').forEach((b) => (b.onclick = () => { select(b.dataset.go); document.getElementById('graph').scrollIntoView({ behavior: 'smooth', block: 'center' }); }));
+  };
+
+  // The graph: entries and people as nodes, person -> project as links, shared tags as a second layer
+  const svg = d3.select('#graph'); let sim, nodeSel, linkSel;
+  const zoomG = svg.append('g');
+  const zoom = d3.zoom().scaleExtent([0.3, 3]).on('zoom', (e) => zoomG.attr('transform', e.transform));
+  svg.call(zoom);
+  // Once the layout settles, fit everything into view (narrow screens especially)
+  const fit = () => { const b = zoomG.node().getBBox(); if (!b.width) return; const w = svg.node().clientWidth, h = svg.node().clientHeight, pad = 24; const k = Math.min(1.4, (w - 2 * pad) / b.width, (h - 2 * pad) / b.height); svg.transition().duration(400).call(zoom.transform, d3.zoomIdentity.translate(w / 2 - k * (b.x + b.width / 2), h / 2 - k * (b.y + b.height / 2)).scale(k)); };
+  function draw() {
+    paintGrid();
+    const w = svg.node().clientWidth || 800, h = svg.node().clientHeight || 600;
+    const shown = items.filter((i) => state.kinds.has(kindOf(i)));
+    const shownIds = new Set(shown.map((i) => i.id));
+    const nodes = shown.map((i) => ({ id: i.id, it: i, k: kindOf(i) }));
+    const links = edges.filter((e) => shownIds.has(e.from) && shownIds.has(e.to)).map((e) => ({ source: e.from, target: e.to, cls: 'person' }));
+    if (state.tags) {
+      const shared = Object.keys(tagCount).filter((t) => shown.filter((i) => (i.tags || []).includes(t)).length >= 2);
+      shared.forEach((t) => nodes.push({ id: 'tag:' + t, tag: t, k: 'tag', n: shown.filter((i) => (i.tags || []).includes(t)).length }));
+      shown.forEach((i) => (i.tags || []).forEach((t) => { if (shared.includes(t)) links.push({ source: i.id, target: 'tag:' + t, cls: 'tag' }); }));
+    }
+    zoomG.selectAll('*').remove();
+    linkSel = zoomG.append('g').selectAll('line').data(links).join('line').attr('class', (l) => 'link ' + l.cls);
+    nodeSel = zoomG.append('g').selectAll('g').data(nodes).join('g').attr('class', (n) => 'node' + (n.k === 'tag' ? ' tag' : ''))
+      .on('click', (e, n) => (n.k === 'tag' ? selectTag(n.tag) : select(n.id)))
+      .call(d3.drag().on('start', (e, n) => { if (!e.active) sim.alphaTarget(0.3).restart(); n.fx = n.x; n.fy = n.y; }).on('drag', (e, n) => { n.fx = e.x; n.fy = e.y; }).on('end', (e, n) => { if (!e.active) sim.alphaTarget(0); n.fx = null; n.fy = null; }));
+    nodeSel.each(function (n) {
+      const g = d3.select(this);
+      if (n.k === 'tag') { g.append('circle').attr('r', 3 + Math.sqrt(n.n) * 1.6).attr('fill', css('--tag')); g.append('text').attr('x', 7 + Math.sqrt(n.n)).attr('y', 3.5).text(n.tag); return; }
+      const r = n.k === 'person' ? 13 : 17;
+      g.append('circle').attr('r', r).attr('fill', css('--k-' + n.k + '-b')).attr('stroke', css('--k-' + n.k)).attr('stroke-width', 2).attr('stroke-dasharray', n.it.confirmed === false ? '3 2.5' : null);
+      g.append('text').attr('text-anchor', 'middle').attr('y', 4).attr('style', `font-size:${n.k === 'person' ? 10 : 10.5}px;font-weight:600;fill:${css('--k-' + n.k)};stroke:none`).text(initials(n.it.name));
+      g.append('text').attr('x', r + 5).attr('y', 4).attr('style', 'font-weight:500').text(shortName(n.it.name));
+      g.append('title').text(n.it.name + (n.it.confirmed === false ? ' (not yet confirmed by the project)' : ''));
+    });
+    sim = d3.forceSimulation(nodes)
+      .force('link', d3.forceLink(links).id((n) => n.id).distance((l) => (l.cls === 'person' ? 80 : 90)).strength((l) => (l.cls === 'person' ? 0.8 : 0.25)))
+      .force('charge', d3.forceManyBody().strength((n) => (n.k === 'tag' ? -120 : -520)))
+      .force('center', d3.forceCenter(w / 2, h / 2))
+      .force('x', d3.forceX(w / 2).strength(0.04)).force('y', d3.forceY(h / 2).strength(0.06))
+      .force('collide', d3.forceCollide((n) => (n.k === 'tag' ? 18 : 46)))
+      .on('end', fit)
+      .on('tick', () => { linkSel.attr('x1', (l) => l.source.x).attr('y1', (l) => l.source.y).attr('x2', (l) => l.target.x).attr('y2', (l) => l.target.y); nodeSel.attr('transform', (n) => `translate(${n.x},${n.y})`); });
+    highlight();
+  }
+  // Dim everything not linked to the selected node or tag
+  function highlight() {
+    if (!nodeSel) return;
+    const key = state.tagFocus ? 'tag:' + state.tagFocus : state.focus;
+    if (!key) { nodeSel.classed('dim', false); linkSel.classed('dim', false); return; }
+    const near = new Set([key]); linkSel.each((l) => { if (l.source.id === key) near.add(l.target.id); if (l.target.id === key) near.add(l.source.id); });
+    nodeSel.classed('dim', (n) => !near.has(n.id)); linkSel.classed('dim', (l) => !(l.source.id === key || l.target.id === key));
+  }
+  window.redraw = draw;
+  paintFilters(); paintSide(); draw();
+  window.addEventListener('resize', () => { clearTimeout(window._rt); window._rt = setTimeout(draw, 200); });
+}
+</script>
+</body>
+</html>
