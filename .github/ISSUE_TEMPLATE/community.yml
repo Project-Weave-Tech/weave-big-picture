@@ -1,0 +1,37 @@
+name: Community
+description: Add a community
+title: "Community: "
+labels: ["community"]
+body:
+  - type: input
+    id: name
+    attributes:
+      label: Name
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What holds this community together
+      description: Two or three sentences are enough.
+    validations:
+      required: true
+  - type: textarea
+    id: more
+    attributes:
+      label: What it needs
+    validations:
+      required: false
+  - type: textarea
+    id: links
+    attributes:
+      label: Links
+    validations:
+      required: false
+  - type: textarea
+    id: connections
+    attributes:
+      label: Connections
+      description: Free text. People, communities, projects, ideas. Nothing has to be complete.
+    validations:
+      required: false

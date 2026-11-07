@@ -1,0 +1,44 @@
+name: Person
+description: Add a person
+title: "Person: "
+labels: ["person"]
+body:
+  - type: input
+    id: name
+    attributes:
+      label: Name
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What this person works on
+      description: Two or three sentences are enough.
+    validations:
+      required: true
+  - type: textarea
+    id: more
+    attributes:
+      label: Talk to them about
+    validations:
+      required: false
+  - type: textarea
+    id: links
+    attributes:
+      label: Links
+    validations:
+      required: false
+  - type: textarea
+    id: connections
+    attributes:
+      label: Connections
+      description: Free text. People, communities, projects, ideas. Nothing has to be complete.
+    validations:
+      required: false
+  - type: checkboxes
+    id: consent
+    attributes:
+      label: Consent
+      options:
+        - label: This is me, or this person agreed to be added.
+          required: true
