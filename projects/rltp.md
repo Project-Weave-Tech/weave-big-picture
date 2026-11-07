@@ -6,6 +6,8 @@ links:
   - https://github.com/real-life-org/web-of-trust
   - https://github.com/real-life-org/port-experimente
   - https://github.com/Project-Weave-Tech/dtg-interop/tree/main/projects/rltp
+kind: software
+confirmed: true
 tags: [local-first, trust-graph, groups, offline, tsp]
 added: 2026-11-06
 ---

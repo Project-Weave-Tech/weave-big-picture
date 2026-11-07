@@ -29,6 +29,13 @@ body:
     validations:
       required: false
   - type: input
+    id: projects
+    attributes:
+      label: Projects
+      description: Projects this person contributes to, comma-separated. Names are fine; someone matches them to entries.
+    validations:
+      required: false
+  - type: input
     id: tags
     attributes:
       label: Tags

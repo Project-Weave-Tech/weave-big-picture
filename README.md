@@ -10,15 +10,15 @@ Interop between the implementations has its own place: the [DTG Interop Board](h
 
 | Folder | One entry is |
 |---|---|
-| [`communities/`](communities/) | A group of people who share something: a place, a practice, a purpose. What holds them together and what they need. |
-| [`projects/`](projects/) | Something being built: an app, a protocol, a service, a network. |
-| [`people/`](people/) | A person: what they work on and what you can talk to them about. |
-| [`ideas/`](ideas/) | Something someone wishes existed, or imagines. |
+| [`projects/`](projects/) | A project: something being built (`kind: software`), a community (`kind: community`) or an idea (`kind: idea`). |
+| [`people/`](people/) | A person: what they work on, what you can talk to them about, and the projects they contribute to (`projects: [slug, …]`). |
+
+Places and events come later.
 
 ## How to add something
 
 - **Without git:** open an issue and pick the form for the kind of entry: [new issue](https://github.com/Project-Weave-Tech/weave-big-picture/issues/new/choose). Someone turns it into a file.
-- **With git:** copy `_template.md` in the folder, name it `<short-name>.md`, fill it in, open a pull request.
+- **With git:** copy `_template.md` in the folder, name it `<short-name>.md` (that name is the entry's id), fill it in, open a pull request. `npm run build` checks the entries and writes `dist/data.json`.
 
 Short is fine. A name and two sentences are a complete entry.
 

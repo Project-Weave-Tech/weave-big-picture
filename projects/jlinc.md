@@ -6,12 +6,12 @@ links:
   - https://github.com/jlinclabs/jlinx
   - https://github.com/jlinclabs/didserver
   - https://github.com/Project-Weave-Tech/dtg-interop/tree/main/projects/jlinc
+kind: software
+confirmed: false
 tags: [agreements, data-exchange, audit]
 added: 2026-11-06
 ---
 Protocol for machine-readable agreements about data exchange with audit records.
-
-*Compiled from public sources; not yet confirmed by the project.*
 
 ## Connections
 

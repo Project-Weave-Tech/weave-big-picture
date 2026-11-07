@@ -9,12 +9,12 @@ links:
   - https://github.com/OpenVTC/tsp-conformance
   - https://github.com/OpenVTC/vti-setup
   - https://github.com/Project-Weave-Tech/dtg-interop/tree/main/projects/openvtc
+kind: software
+confirmed: false
 tags: [first-person-project, communities, credentials, data-rooms, mediator]
 added: 2026-11-06
 ---
 Reference stack of the First Person Project: Verifiable Trust Agent (key custody per identity), Verifiable Trust Community (community service with policies), Data Rooms, mediator, operator CLIs, browser plugin. FirstPerson.dev is the test community.
-
-*Compiled from public sources; not yet confirmed by the project.*
 
 ## Connections
 

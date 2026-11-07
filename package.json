@@ -1,0 +1,7 @@
+{
+  "name": "weave-big-picture",
+  "private": true,
+  "type": "module",
+  "scripts": { "build": "node scripts/build.mjs" },
+  "dependencies": { "js-yaml": "4.1.0" }
+}

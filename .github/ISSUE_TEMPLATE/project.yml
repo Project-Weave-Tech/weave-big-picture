@@ -1,5 +1,5 @@
 name: Project
-description: Add a project
+description: Add a project, a community or an idea
 title: "Project: "
 labels: ["project"]
 body:
@@ -9,10 +9,17 @@ body:
       label: Name
     validations:
       required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind
+      options: [software, community, idea]
+    validations:
+      required: true
   - type: textarea
     id: what
     attributes:
-      label: What is being built
+      label: What this is
       description: Two or three sentences are enough.
     validations:
       required: true
