@@ -1,6 +1,7 @@
 ---
 name:
 links: []
+tags: []
 added: YYYY-MM-DD
 ---
 

@@ -1,6 +1,7 @@
 ---
 name:
 links: []
+tags: []
 added: YYYY-MM-DD
 consent: self   # self = I added myself; agreed = this person agreed to be added
 ---
