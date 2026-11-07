@@ -4,6 +4,7 @@ links:
   - https://playnet.earth/info
   - https://www.valueflo.ws/
   - https://codeberg.org/valueflows/valueflows
+  - https://playnet.earth/radicle/
   - https://github.com/Project-Weave-Tech/dtg-interop/tree/main/projects/playnet
 kind: software
 confirmed: false
