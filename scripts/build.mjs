@@ -1,9 +1,10 @@
-// Reads projects/*.md and people/*.md and writes dist/data.json:
+// Reads projects/*.md and people/*.md and writes dist/data.json beside a copy
+// of site/* (the page):
 //   items[]: { type: project|person, id, name, links, tags, kind?, added,
 //              consent?, confirmed?, summary, sections: { heading: text } }
 //   edges[]: { from: person id, to: project id }   (from a person's `projects`)
 // Exits 1 with every error found.
-import { readFileSync, readdirSync, mkdirSync, writeFileSync } from 'node:fs'
+import { readFileSync, readdirSync, mkdirSync, writeFileSync, existsSync, cpSync } from 'node:fs'
 import { join } from 'node:path'
 import yaml from 'js-yaml'
 
@@ -54,6 +55,7 @@ for (const p of people) for (const to of p.projects) {
 for (const p of people) delete p.projects
 if (errors.length) { console.error(errors.join('\n')); process.exit(1) }
 mkdirSync(join(root, 'dist'), { recursive: true })
+if (existsSync(join(root, 'site'))) cpSync(join(root, 'site'), join(root, 'dist'), { recursive: true })
 const data = { generated: new Date().toISOString().slice(0, 10), items: [...projects, ...people], edges }
 writeFileSync(join(root, 'dist/data.json'), JSON.stringify(data, null, 1))
 console.log(`built dist/data.json: ${projects.length} project(s), ${people.length} person(s), ${edges.length} edge(s)`)
