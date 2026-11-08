@@ -12,13 +12,13 @@
 <style>
 /* Paper and earth: the ground is a map, the connections glow like water and light over it */
 :root{--bg:#EFE6D2;--paper:#F6EFDF;--surface:rgba(250,245,233,.92);--ink:#2B2117;--muted:#6E604C;--line:#D6C7A6;--contour:#B9A57E;--soft:#E6DAC0;
---cyan:#1E9DAE;--gold:#C38A1E;--glow-c:rgba(46,198,214,.55);--glow-g:rgba(226,169,59,.5);
+--cyan:#1E9DAE;--gold:#C38A1E;--gold-ink:#7A5208;--glow-c:rgba(46,198,214,.55);--glow-g:rgba(226,169,59,.5);
 --k-software:#14707D;--k-software-b:#D7ECEC;--k-community:#4F6B2A;--k-community-b:#E1E9CF;--k-idea:#9A5E0E;--k-idea-b:#F3E2BE;--k-person:#9E3F26;--k-person-b:#F2D9CC;color-scheme:light}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#17140F;--paper:#1F1B15;--surface:rgba(34,29,22,.9);--ink:#F1E8D6;--muted:#B5A68B;--line:#3E3527;--contour:#4A3F2E;--soft:#2A241B;
---cyan:#5FD6E3;--gold:#E8B451;--glow-c:rgba(95,214,227,.6);--glow-g:rgba(232,180,81,.5);
+--cyan:#5FD6E3;--gold:#E8B451;--gold-ink:#F0C779;--glow-c:rgba(95,214,227,.6);--glow-g:rgba(232,180,81,.5);
 --k-software:#6FD0DB;--k-software-b:#173033;--k-community:#B5CE7E;--k-community-b:#252C17;--k-idea:#F0C26B;--k-idea-b:#352812;--k-person:#F0A487;--k-person-b:#3A2119;color-scheme:dark}}
 :root[data-theme="dark"]{--bg:#17140F;--paper:#1F1B15;--surface:rgba(34,29,22,.9);--ink:#F1E8D6;--muted:#B5A68B;--line:#3E3527;--contour:#4A3F2E;--soft:#2A241B;
---cyan:#5FD6E3;--gold:#E8B451;--glow-c:rgba(95,214,227,.6);--glow-g:rgba(232,180,81,.5);
+--cyan:#5FD6E3;--gold:#E8B451;--gold-ink:#F0C779;--glow-c:rgba(95,214,227,.6);--glow-g:rgba(232,180,81,.5);
 --k-software:#6FD0DB;--k-software-b:#173033;--k-community:#B5CE7E;--k-community-b:#252C17;--k-idea:#F0C26B;--k-idea-b:#352812;--k-person:#F0A487;--k-person-b:#3A2119;color-scheme:dark}
 *{box-sizing:border-box}
 html,body{height:100%}
@@ -68,7 +68,7 @@ main{flex:1;min-height:0;display:flex}
 .empty{color:var(--muted)}
 .node{cursor:pointer}
 .node text{font-size:12.5px;fill:var(--ink);pointer-events:none;paint-order:stroke;stroke:var(--bg);stroke-width:4px;stroke-linejoin:round}
-.node.tag text{fill:var(--muted);font-size:11px;font-style:italic}
+.node.tag text{fill:var(--gold-ink);font-size:15px;font-weight:500;letter-spacing:.01em}
 .node.dim,.link.dim{opacity:.1}
 .link{fill:none;stroke-linecap:round}
 .link.tag{stroke:var(--gold);stroke-opacity:.55;stroke-width:1.6}
@@ -234,7 +234,10 @@ function start(d) {
   // A click on empty space clears the selection
   svg.on('click', (e) => { if (e.target === svg.node()) clear(); });
   // Fit everything into the space left of the details card
-  const fit = () => { const b = zoomG.node().getBBox(); if (!b.width) return; const W = svg.node().clientWidth, h = svg.node().clientHeight; const sideW = W > 900 && !side.hidden ? 420 : 0; const w = W - sideW, pad = 60; const k = Math.min(1.6, (w - 2 * pad) / b.width, (h - 2 * pad) / b.height); svg.transition().duration(500).call(zoom.transform, d3.zoomIdentity.translate(w / 2 - k * (b.x + b.width / 2), h / 2 - k * (b.y + b.height / 2)).scale(k)); };
+  const fit = () => { const b = zoomG.node().getBBox(); if (!b.width) return; const W = svg.node().clientWidth, H = svg.node().clientHeight; const sideW = W > 900 && !side.hidden ? 420 : 0;
+    // Keep clear of the floating filters at the top and the legend at the bottom
+    const top = 84, bottom = 64, left = 40, right = 40 + sideW; const w = W - left - right, h = H - top - bottom;
+    const k = Math.min(1.6, w / b.width, h / b.height); svg.transition().duration(500).call(zoom.transform, d3.zoomIdentity.translate(left + w / 2 - k * (b.x + b.width / 2), top + h / 2 - k * (b.y + b.height / 2)).scale(k)); };
   // A thread bends a little, like a stream across the ground
   const curve = (l) => { const x1 = l.source.x, y1 = l.source.y, x2 = l.target.x, y2 = l.target.y; const dx = x2 - x1, dy = y2 - y1; const bend = l.cls === 'tag' ? 0.12 : 0.06; return `M${x1},${y1} Q${(x1 + x2) / 2 - dy * bend},${(y1 + y2) / 2 + dx * bend} ${x2},${y2}`; };
   function draw() {
@@ -255,7 +258,7 @@ function start(d) {
       .call(d3.drag().on('start', (e, n) => { if (!e.active) sim.alphaTarget(0.3).restart(); n.fx = n.x; n.fy = n.y; }).on('drag', (e, n) => { n.fx = e.x; n.fy = e.y; }).on('end', (e, n) => { if (!e.active) sim.alphaTarget(0); n.fx = null; n.fy = null; }));
     nodeSel.each(function (n) {
       const g = d3.select(this);
-      if (n.k === 'tag') { g.append('circle').attr('r', 3 + Math.sqrt(n.n) * 1.5).attr('fill', css('--gold')).attr('filter', 'url(#glow)'); g.append('text').attr('x', 8 + Math.sqrt(n.n)).attr('y', 4).text(n.tag); return; }
+      if (n.k === 'tag') { g.append('circle').attr('r', 5 + Math.sqrt(n.n) * 1.8).attr('fill', css('--gold')).attr('filter', 'url(#glow)'); g.append('text').attr('x', 11 + Math.sqrt(n.n) * 1.8).attr('y', 5).text(n.tag); return; }
       const r = n.k === 'person' ? 15 : 21;
       g.append('circle').attr('r', r + 7).attr('fill', css('--k-' + n.k)).attr('opacity', 0.16).attr('filter', 'url(#halo)');
       g.append('circle').attr('r', r).attr('fill', css('--k-' + n.k + '-b')).attr('stroke', css('--k-' + n.k)).attr('stroke-width', 2.2).attr('stroke-dasharray', n.it.confirmed === false ? '3.5 2.5' : null);
