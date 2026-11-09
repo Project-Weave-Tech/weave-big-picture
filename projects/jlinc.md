@@ -5,7 +5,10 @@ links:
   - https://github.com/jlinclabs/jlinc-node
   - https://github.com/jlinclabs/jlinx
   - https://github.com/jlinclabs/didserver
-  - https://github.com/Project-Weave-Tech/dtg-interop/tree/main/projects/jlinc  - https://docs.jlinc.io  - https://youtu.be/BZSfMwBuXls  - https://youtu.be/sCWt-BYVbLE
+  - https://github.com/Project-Weave-Tech/dtg-interop/tree/main/projects/jlinc
+  - https://docs.jlinc.io
+  - https://youtu.be/BZSfMwBuXls
+  - https://youtu.be/sCWt-BYVbLE
 kind: software
 confirmed: false
 tags: [agreements, data-exchange, audit]

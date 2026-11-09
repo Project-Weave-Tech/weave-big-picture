@@ -8,7 +8,10 @@ links:
   - https://github.com/OpenVTC/dtg-credentials
   - https://github.com/OpenVTC/tsp-conformance
   - https://github.com/OpenVTC/vti-setup
-  - https://github.com/Project-Weave-Tech/dtg-interop/tree/main/projects/openvtc  - https://first.openvtc.net/  - https://github.com/Mickens-Lab/openvti-buildathon-starter  - https://vtc.bengo.is/
+  - https://github.com/Project-Weave-Tech/dtg-interop/tree/main/projects/openvtc
+  - https://first.openvtc.net/
+  - https://github.com/Mickens-Lab/openvti-buildathon-starter
+  - https://vtc.bengo.is/
 kind: software
 confirmed: false
 tags: [first-person-project, communities, credentials, data-rooms, mediator]

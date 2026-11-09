@@ -1,7 +1,9 @@
 ---
 name: Planetary Party Protocol
 links:
-  - https://www.kinshipearth.org/bioregional-activations  - https://www.planetaryparty.com  - https://www.instagram.com/reel/DfEAOeTtzoR/
+  - https://www.kinshipearth.org/bioregional-activations
+  - https://www.planetaryparty.com
+  - https://www.instagram.com/reel/DfEAOeTtzoR/
 kind: idea
 confirmed: false
 tags: [bioregional, regeneration, social-protocol, festival, learning-network]
